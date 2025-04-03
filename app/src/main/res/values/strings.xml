@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">My Coffee App</string>
+    <string name="ch_n_coffee_theo_n_s_th_ch_c_a_b_n">Chọn Coffee Theo\n Sở Thích Của Bạn</string>
+    <string name="get_started">Get Started</string>
+</resources>
