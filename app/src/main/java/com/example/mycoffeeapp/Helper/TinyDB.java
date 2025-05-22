@@ -148,7 +148,7 @@ public class TinyDB {
 
         if (isExternalStorageReadable() && isExternalStorageWritable() && !mFolder.exists()) {
             if (!mFolder.mkdirs()) {
-                Log.e("ERROR", "Failed to setup folder");
+                Log.e("ERROR", "Lỗi setup folder");
                 return "";
             }
         }
