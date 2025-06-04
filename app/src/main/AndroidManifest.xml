@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
 
     <application
         android:allowBackup="true"
@@ -49,6 +52,13 @@
         <activity
             android:name=".Activity.ProfileActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".Activity.MapActivity"
+            android:exported="false" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCOTQa115rgWPpoStYIAYZmyY3-U4p1Ej0"/>
     </application>
 
 </manifest>

@@ -93,8 +93,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         binding.explorerBtn.setOnClickListener {
-            // Đã ở màn hình chính nên không cần xử lý gì
+            val intent = Intent(this, MapActivity::class.java)
+            startActivity(intent)
         }
+
 
         binding.cartBtn.setOnClickListener {
             startActivity(Intent(this, CartActivity::class.java))
