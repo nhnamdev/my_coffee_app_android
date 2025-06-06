@@ -19,7 +19,7 @@ class ItemsAdapter(private val items: List<Items>) :
         
         fun bind(item: Items) {
             binding.titleTxt.text = item.title
-            binding.priceTxt.text = "$${item.price}"
+            binding.priceTxt.text = "${item.price}"
             binding.ratingTxt.text = item.rating.toString()
             
             // Load image using Glide

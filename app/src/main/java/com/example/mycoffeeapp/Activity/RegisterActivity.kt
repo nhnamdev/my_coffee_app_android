@@ -1,5 +1,6 @@
 package com.example.mycoffeeapp.Activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -81,24 +82,26 @@ class RegisterActivity : AppCompatActivity() {
                     val user = auth.currentUser
                     val userData = hashMapOf(
                         "name" to name,
-                        "email" to email
+                        "email" to email,
+                        "phone" to "",
+                        "address" to ""
                     )
 
                     db.collection("users")
                         .document(user!!.uid)
                         .set(userData)
                         .addOnSuccessListener {
-                            Toast.makeText(this, "Đăng kí thành công",
-                                Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
+                            // Chuyển về màn hình đăng nhập
+                            startActivity(Intent(this, LoginActivity::class.java))
                             finish()
                         }
                         .addOnFailureListener { e ->
-                            Toast.makeText(this, "LỖi khi lưu user: ${e.message}",
-                                Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Lỗi khi lưu thông tin: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
+                    Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Lỗi đăng kí: ${task.exception?.message}",
-                        Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Lỗi đăng ký: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }

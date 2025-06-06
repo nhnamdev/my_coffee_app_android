@@ -36,7 +36,7 @@ class LoginActivity : AppCompatActivity() {
                         .addOnCompleteListener(this) { task ->
                             binding.loginBtn.isEnabled = true
                             if (task.isSuccessful) {
-                                startActivity(Intent(this, MainActivity::class.java))
+                                startActivity(Intent(this, SplashActivity::class.java))
                                 finish()
                             } else {
                                 val errorMessage = task.exception?.message ?: "Login failed"

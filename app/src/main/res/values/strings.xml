@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">My Coffee App</string>
     <string name="ch_n_coffee_theo_n_s_th_ch_c_a_b_n">Chọn Coffee Theo\n Sở Thích Của Bạn</string>
@@ -6,4 +7,5 @@
     <string name="danh_m_c">Danh Mục</string>
     <string name="popular_coffee">Popular Coffee</string>
     <string name="see_all">See all</string>
+    <string name="google_maps_key">AIzaSyCOTQa115rgWPpoStYIAYZmyY3-U4p1Ej0</string>
 </resources>
