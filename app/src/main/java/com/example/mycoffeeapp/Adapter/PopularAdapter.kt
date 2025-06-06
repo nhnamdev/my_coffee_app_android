@@ -23,7 +23,7 @@ class PopularAdapter(val items:MutableList<ItemsModel>):RecyclerView.Adapter<Pop
 
     override fun onBindViewHolder(holder: Viewholder, position: Int) {
         holder.binding.titleTxt.text=items[position].title
-        holder.binding.priceTxt.text="$"+items[position].price.toString()
+        holder.binding.priceTxt.text=items[position].price.toString()
         Glide.with(context)
             .load(items[position].picUrl[0])
             .into(holder.binding.pic)

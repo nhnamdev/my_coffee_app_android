@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.example.mycoffeeapp.R
 import com.example.mycoffeeapp.databinding.ActivityProfileBinding
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -30,6 +31,14 @@ class ProfileActivity : AppCompatActivity() {
             result.data?.data?.let { uri ->
                 selectedImageUri = uri
                 binding.profileImage.setImageURI(uri)
+            }
+        }
+    }
+
+    private val getAddressFromMap = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.getStringExtra("address")?.let { address ->
+                binding.addressEdit.setText(address)
             }
         }
     }
@@ -65,6 +74,12 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.logoutButton.setOnClickListener {
             showLogoutConfirmationDialog()
+        }
+
+        // Thêm xử lý sự kiện khi nhấn vào icon bản đồ
+        binding.addressEdit.setOnClickListener {
+            val intent = Intent(this, MapActivity::class.java)
+            getAddressFromMap.launch(intent)
         }
     }
 
@@ -102,7 +117,7 @@ class ProfileActivity : AppCompatActivity() {
             return
         }
 
-        val userData = hashMapOf(
+        val userData = mapOf(
             "name" to name,
             "phone" to phone,
             "address" to address
@@ -121,20 +136,26 @@ class ProfileActivity : AppCompatActivity() {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val downloadUri = task.result
-                        userData["profileImageUrl"] = downloadUri.toString()
-                        updateUserData(userId, userData)
+                        val updatedData = userData + mapOf("profileImageUrl" to downloadUri.toString())
+                        updateUserData(userId, updatedData)
+                        Toast.makeText(this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(this, "Lỗi khi tải ảnh lên", Toast.LENGTH_SHORT).show()
                     }
                 }
-        } ?: updateUserData(userId, userData)
+        } ?: run {
+            updateUserData(userId, userData)
+            Toast.makeText(this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show()
+
+        }
     }
 
-    private fun updateUserData(userId: String, userData: HashMap<String, String>) {
+    private fun updateUserData(userId: String, userData: Map<String, Any>) {
         firestore.collection("users").document(userId)
-            .update(userData as Map<String, Any>)
+            .update(userData)
             .addOnSuccessListener {
                 Toast.makeText(this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show()
+                finish()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Lỗi khi cập nhật: ${e.message}", Toast.LENGTH_SHORT).show()
