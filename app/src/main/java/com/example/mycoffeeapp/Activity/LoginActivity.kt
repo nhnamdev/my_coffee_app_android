@@ -8,11 +8,44 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.mycoffeeapp.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlin.random.Random
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private var captchaText: String = ""
+    private var captchaAttempts: Int = 0
+    private val maxCaptchaAttempts: Int = 3
+
+    private fun generateCaptcha(): String {
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        return (1..6).map { chars[Random.nextInt(chars.length)] }.joinToString("")
+    }
+
+    private fun refreshCaptcha() {
+        captchaText = generateCaptcha()
+        binding.captchaText.text = captchaText
+        binding.captchaInput.setText("")
+    }
+
+    private fun validateCaptcha(): Boolean {
+        val userInput = binding.captchaInput.text?.toString() ?: ""
+        if (userInput.equals(captchaText, ignoreCase = true)) {
+            captchaAttempts = 0
+            return true
+        }
+        captchaAttempts++
+        if (captchaAttempts >= maxCaptchaAttempts) {
+            Toast.makeText(this, "Quá nhiều lần nhập sai captcha. Vui lòng thử lại sau.", Toast.LENGTH_LONG).show()
+            binding.loginBtn.isEnabled = false
+            binding.captchaInput.isEnabled = false
+            return false
+        }
+        refreshCaptcha()
+        Toast.makeText(this, "Captcha không đúng. Vui lòng thử lại.", Toast.LENGTH_SHORT).show()
+        return false
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,11 +59,21 @@ class LoginActivity : AppCompatActivity() {
             // Check if default account exists
             checkDefaultAccount()
 
+            // Initialize captcha
+            refreshCaptcha()
+
+            binding.refreshCaptchaBtn.setOnClickListener {
+                refreshCaptcha()
+            }
+
             binding.loginBtn.setOnClickListener {
                 val email = binding.emailEdt.text.toString()
                 val password = binding.passwordEdt.text.toString()
 
                 if (email.isNotEmpty() && password.isNotEmpty()) {
+                    if (!validateCaptcha()) {
+                        return@setOnClickListener
+                    }
                     binding.loginBtn.isEnabled = false
                     auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
@@ -42,6 +85,7 @@ class LoginActivity : AppCompatActivity() {
                                 val errorMessage = task.exception?.message ?: "Login failed"
                                 Log.e("LoginActivity", "Login error: $errorMessage")
                                 Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+                                refreshCaptcha()
                             }
                         }
                 } else {
