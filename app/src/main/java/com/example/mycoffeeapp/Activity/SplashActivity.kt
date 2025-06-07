@@ -22,17 +22,7 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
         auth = FirebaseAuth.getInstance()
 
-        // Kiểm tra trạng thái đăng nhập sau 2 giây
-        Handler(Looper.getMainLooper()).postDelayed({
-            if (auth.currentUser != null) {
-                // Nếu đã đăng nhập, chuyển đến MainActivity
-                startActivity(Intent(this, MainActivity::class.java))
-            } else {
-                // Nếu chưa đăng nhập, chuyển đến LoginActivity
-                startActivity(Intent(this, LoginActivity::class.java))
-            }
-            finish()
-        }, 2000)
+
 
         binding.startBtn.setOnClickListener {
             if (auth.currentUser != null) {

@@ -4,9 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mycoffeeapp.databinding.ActivityLoginBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.random.Random
 
@@ -14,9 +22,15 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var googleSignInClient: GoogleSignInClient
     private var captchaText: String = ""
     private var captchaAttempts: Int = 0
     private val maxCaptchaAttempts: Int = 3
+
+    private val signInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        handleSignInResult(task)
+    }
 
     private fun generateCaptcha(): String {
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -56,6 +70,14 @@ class LoginActivity : AppCompatActivity() {
             auth = FirebaseAuth.getInstance()
             firestore = FirebaseFirestore.getInstance()
 
+            // Configure Google Sign In
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("136962826431-ig6rdqv83uvecife3ju0nl00hb1sfoeu.apps.googleusercontent.com") // Thay thế bằng Web Client ID từ Firebase Console
+                .requestEmail()
+                .build()
+
+            googleSignInClient = GoogleSignIn.getClient(this, gso)
+
             // Check if default account exists
             checkDefaultAccount()
 
@@ -93,6 +115,10 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
 
+            binding.googleSignInButton.setOnClickListener {
+                signInWithGoogle()
+            }
+
             binding.registerBtn.setOnClickListener {
                 startActivity(Intent(this, RegisterActivity::class.java))
             }
@@ -100,6 +126,80 @@ class LoginActivity : AppCompatActivity() {
             Log.e("LoginActivity", "Lỗi khi khởi tạo Firebase: ${e.message}")
             Toast.makeText(this, "Lỗi khi khởi tạo: ${e.message}", Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun signInWithGoogle() {
+        val signInIntent = googleSignInClient.signInIntent
+        signInLauncher.launch(signInIntent)
+    }
+
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+        try {
+            val account = completedTask.getResult(ApiException::class.java)
+            Log.d("LoginActivity", "Google Sign In Success: ${account.email}")
+
+            val idToken = account.idToken
+            if (idToken == null) {
+                Log.e("LoginActivity", "ID Token is null")
+                Toast.makeText(this, "Lỗi: Không lấy được ID Token", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            firebaseAuthWithGoogle(idToken)
+        } catch (e: ApiException) {
+            Log.e("LoginActivity", "Google sign in failed", e)
+            Toast.makeText(this, "Đăng nhập Google thất bại: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    // Kiểm tra xem người dùng đã tồn tại trong Firestore chưa
+                    firestore.collection("users")
+                        .document(user?.uid ?: "")
+                        .get()
+                        .addOnSuccessListener { document ->
+                            if (document.exists()) {
+                                // Nếu người dùng đã tồn tại, chuyển đến màn hình chính
+                                startActivity(Intent(this, SplashActivity::class.java))
+                                finish()
+                            } else {
+                                // Nếu người dùng chưa tồn tại, tạo mới thông tin
+                                val userInfo = hashMapOf(
+                                    "username" to (user?.displayName ?: ""),
+                                    "email" to (user?.email ?: ""),
+                                    "phone" to "",
+                                    "address" to "",
+                                    "photoUrl" to (user?.photoUrl?.toString() ?: ""),
+                                    "createdAt" to System.currentTimeMillis()
+                                )
+                                firestore.collection("users")
+                                    .document(user?.uid ?: "")
+                                    .set(userInfo)
+                                    .addOnSuccessListener {
+                                        Log.d("LoginActivity", "Đã tạo thông tin người dùng mới thành công")
+                                        startActivity(Intent(this, SplashActivity::class.java))
+                                        finish()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("LoginActivity", "Lỗi khi tạo thông tin người dùng: ${e.message}")
+                                        Toast.makeText(this, "Lỗi khi tạo thông tin người dùng: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("LoginActivity", "Lỗi khi kiểm tra thông tin người dùng: ${e.message}")
+                            Toast.makeText(this, "Lỗi khi kiểm tra thông tin người dùng: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Log.w("LoginActivity", "signInWithCredential:failure", task.exception)
+                    Toast.makeText(this, "Đăng nhập thất bại: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
     private fun checkDefaultAccount() {

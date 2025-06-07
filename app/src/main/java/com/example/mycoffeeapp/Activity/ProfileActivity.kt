@@ -88,15 +88,18 @@ class ProfileActivity : AppCompatActivity() {
         firestore.collection("users").document(userId).get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    binding.nameEdit.setText(document.getString("name"))
+                    // Sử dụng displayName từ Google nếu có, nếu không thì dùng name từ Firestore
+                    val name = document.getString("username") ?: document.getString("name") ?: ""
+                    binding.nameEdit.setText(name)
                     binding.emailEdit.setText(document.getString("email"))
                     binding.phoneEdit.setText(document.getString("phone"))
                     binding.addressEdit.setText(document.getString("address"))
 
-                    // Load profile image
-                    document.getString("profileImageUrl")?.let { imageUrl ->
+                    // Load profile image - ưu tiên ảnh từ Google nếu có
+                    val imageUrl = document.getString("photoUrl") ?: document.getString("profileImageUrl")
+                    imageUrl?.let { url ->
                         Glide.with(this)
-                            .load(imageUrl)
+                            .load(url)
                             .into(binding.profileImage)
                     }
                 }
@@ -118,6 +121,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         val userData = mapOf(
+            "username" to name,  // Cập nhật cả username và name
             "name" to name,
             "phone" to phone,
             "address" to address
@@ -136,7 +140,10 @@ class ProfileActivity : AppCompatActivity() {
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val downloadUri = task.result
-                        val updatedData = userData + mapOf("profileImageUrl" to downloadUri.toString())
+                        val updatedData = userData + mapOf(
+                            "profileImageUrl" to downloadUri.toString(),
+                            "photoUrl" to downloadUri.toString()  // Cập nhật cả photoUrl
+                        )
                         updateUserData(userId, updatedData)
                         Toast.makeText(this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show()
                     } else {
@@ -146,7 +153,6 @@ class ProfileActivity : AppCompatActivity() {
         } ?: run {
             updateUserData(userId, userData)
             Toast.makeText(this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show()
-
         }
     }
 
