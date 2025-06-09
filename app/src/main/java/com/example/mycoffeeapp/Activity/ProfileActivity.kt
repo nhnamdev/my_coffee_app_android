@@ -76,6 +76,10 @@ class ProfileActivity : AppCompatActivity() {
             showLogoutConfirmationDialog()
         }
 
+        binding.feedbackButton.setOnClickListener {
+            sendFeedback()
+        }
+
         // Thêm xử lý sự kiện khi nhấn vào icon bản đồ
         binding.addressEdit.setOnClickListener {
             val intent = Intent(this, MapActivity::class.java)
@@ -230,5 +234,17 @@ class ProfileActivity : AppCompatActivity() {
             }
             .setNegativeButton("Hủy", null)
             .show()
+    }
+
+    private fun sendFeedback() {
+        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:mycoffeeapp@gmail.com")
+            putExtra(Intent.EXTRA_SUBJECT, "Phản hồi từ người dùng")
+        }
+        try {
+            startActivity(emailIntent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Không tìm thấy ứng dụng email", Toast.LENGTH_SHORT).show()
+        }
     }
 } 
