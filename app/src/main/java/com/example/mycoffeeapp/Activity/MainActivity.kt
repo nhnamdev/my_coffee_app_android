@@ -1,11 +1,13 @@
 package com.example.mycoffeeapp.Activity
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 //import androidx.activity.R
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,21 +18,43 @@ import com.example.mycoffeeapp.Domain.CategoryModel
 import com.example.mycoffeeapp.Domain.ItemsModel
 import com.example.mycoffeeapp.ViewModel.MainViewModel
 import com.example.mycoffeeapp.databinding.ActivityMainBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel = MainViewModel()
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        sharedPreferences = getSharedPreferences("MyCoffeeApp", MODE_PRIVATE)
+        checkFirstOpenOfDay()
         initBanner()
         initCategory()
         initPopular()
         setupClickListeners()
+    }
+
+    private fun checkFirstOpenOfDay() {
+        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val lastOpenDate = sharedPreferences.getString("last_open_date", "")
+        if (lastOpenDate != currentDate) {
+            showWelcomeDialog()
+            sharedPreferences.edit().putString("last_open_date", currentDate).apply()
+        }
+    }
+
+    private fun showWelcomeDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Chào mừng")
+            .setMessage("Chào mừng bạn đến với ứng dụng My Coffee App!")
+            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     private fun initBanner() {
