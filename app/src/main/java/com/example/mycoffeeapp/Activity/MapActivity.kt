@@ -61,8 +61,24 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        val defaultLocation = LatLng(10.8974236, 106.7845859)  // Vị trí mặc định
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 15f))
+
+//        // địa chỉ quán coffee
+//        val cafeLocation = LatLng(10.7769, 106.7009)
+//        map.addMarker(MarkerOptions().position(cafeLocation).title("Quán Cafe của tôi"))
+//
+//        //địa chỉ sẽ hiển thị bản đồ
+//        val defaultLocation = LatLng(10.8974236, 106.7845859)  // Vị trí mặc định
+//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 15f))
+
+        val cafeLocation = LatLng(10.8974236, 106.7845859) // toạ độ quán Trà Sữa PU
+        map.addMarker(
+            MarkerOptions()
+                .position(cafeLocation)
+                .title("Trà Sữa PU")
+        )
+        // Zoom vào đúng vị trí quán luôn (hoặc tuỳ bạn chọn vị trí khác để focus)
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cafeLocation, 15f))
+
 
         // Xử lý sự kiện khi người dùng nhấn vào bản đồ
         map.setOnMapClickListener { latLng ->

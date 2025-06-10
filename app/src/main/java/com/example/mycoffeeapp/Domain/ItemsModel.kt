@@ -10,5 +10,6 @@ data class ItemsModel(
     var price: Double = 0.0,
     var rating: Double = 0.0,
     var numberInCart: Int= 0,
-    var extra: String = ""
+    var extra: String = "",
+    var isFavorite: Boolean = false
 ): Serializable
