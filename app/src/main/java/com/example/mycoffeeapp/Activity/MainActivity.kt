@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-//import androidx.activity.R
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -60,8 +59,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initBanner() {
-        binding.progressBarBanner.visibility=View.VISIBLE
-        viewModel.loadBanner().observeForever{
+        binding.progressBarBanner.visibility = View.VISIBLE
+        viewModel.loadBanner().observeForever {
             Glide.with(this@MainActivity)
                 .load(it[0].url)
                 .into(binding.banner)
@@ -74,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         binding.progressBarCategory.visibility = View.VISIBLE
 
         viewModel.loadCategory().observeForever { categoryList ->
-            // Convert Category to CategoryModel
             val categoryModelList = categoryList.map { category ->
                 CategoryModel(
                     title = category.title,
@@ -93,11 +91,10 @@ class MainActivity : AppCompatActivity() {
         viewModel.loadCategory()
     }
 
-    private fun initPopular(){
+    private fun initPopular() {
         binding.progressBarPopular.visibility = View.VISIBLE
 
         viewModel.loadPopular().observeForever { popularList ->
-            // Convert Popular to ItemsModel
             val itemsModelList = popularList.map { popular ->
                 ItemsModel(
                     title = popular.title,
@@ -119,19 +116,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         binding.explorerBtn.setOnClickListener {
-            val intent = Intent(this, MapActivity::class.java)
+            val intent = Intent(this, ExploreActivity::class.java)
             startActivity(intent)
         }
-
 
         binding.cartBtn.setOnClickListener {
             startActivity(Intent(this, CartActivity::class.java))
         }
 
         binding.favouriteBtn.setOnClickListener {
-            // nếu vẫn không hiển thị dươc thì dùng cái này
-//          Toast.makeText(this, "Chức năng yeu thich đang được phát triển", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, com.example.mycoffeeapp.Activity.FavoriteActivity::class.java))
+            startActivity(Intent(this, FavoriteActivity::class.java))
         }
 
         binding.orderBtn.setOnClickListener {

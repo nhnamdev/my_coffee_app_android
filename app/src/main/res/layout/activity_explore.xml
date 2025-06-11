@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/lightCream">
+
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/backBtn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/circle_background"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Shop Image (Hardcoded to splash_pic for now) -->
+    <ImageView
+        android:id="@+id/shopImage"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/splash_pic"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Shop Name (Hardcoded) -->
+    <TextView
+        android:id="@+id/shopName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Coffee Shop"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/darkBrown"
+        app:layout_constraintTop_toBottomOf="@id/shopImage"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp" />
+
+    <!-- Rating Bar (Hardcoded to 4.5 stars) -->
+    <RatingBar
+        android:id="@+id/ratingBar"
+        style="@style/Widget.AppCompat.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:rating="4.5"
+        android:progressTint="@color/orange"
+        app:layout_constraintTop_toBottomOf="@id/shopName"
+        app:layout_constraintStart_toStartOf="@id/shopName"
+        android:layout_marginTop="8dp" />
+
+    <!-- Distance and Reviews (Hardcoded to 4.50 km and 143 reviews) -->
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="4.50 km (143 reviews)"
+        android:textColor="@color/darkBrown"
+        app:layout_constraintTop_toBottomOf="@id/ratingBar"
+        app:layout_constraintStart_toStartOf="@id/shopName"
+        android:layout_marginTop="4dp" />
+
+    <!-- Type and Time (Hardcoded to Coffee Shop and 42 minutes) -->
+    <TextView
+        android:id="@+id/type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Coffee Shop ⏱ 42 phút"
+        android:textColor="@color/darkBrown"
+        app:layout_constraintTop_toBottomOf="@id/distance"
+        app:layout_constraintStart_toStartOf="@id/shopName"
+        android:layout_marginTop="8dp" />
+
+    <!-- Overview Text (Hardcoded) -->
+    <TextView
+        android:id="@+id/overview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="AWESOME OVERVIEW\nBước vào My Coffee - nơi gõ nhấm từng giọt cà phê đậm đà được pha chế tỉ mỉ, mang đến hương vị nguyên bản từ hạt cà phê ngon nhất. Không gian ấm cúng, không chỉ là nơi để thưởng thức mà còn là nơi để thư giãn."
+        android:textColor="@color/darkBrown"
+        app:layout_constraintTop_toBottomOf="@id/type"
+        app:layout_constraintStart_toStartOf="@id/shopName"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp" />
+
+    <!-- Buttons Layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/directionsBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Đường đi"
+            android:background="@drawable/brown_full_corner_bg"
+            android:textColor="@color/white"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/callBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Gọi"
+            android:background="@drawable/brown_full_corner_bg"
+            android:textColor="@color/white"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
