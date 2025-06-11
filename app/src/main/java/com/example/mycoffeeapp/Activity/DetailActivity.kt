@@ -15,6 +15,8 @@ import com.example.mycoffeeapp.R
 import com.example.mycoffeeapp.databinding.ActivityDetailBinding
 import com.example.project1762.Helper.ManagmentCart
 import com.google.firebase.auth.FirebaseAuth
+import android.content.pm.PackageManager
+import android.net.Uri
 
 class DetailActivity : AppCompatActivity() {
     lateinit var binding:ActivityDetailBinding
@@ -98,8 +100,65 @@ class DetailActivity : AppCompatActivity() {
                     item.numberInCart--
                 }
             }
+
+            // Thêm xử lý nút chia sẻ
+            shareBtn.setOnClickListener {
+                showShareOptions()
+            }
         }
     }
+
+    private fun showShareOptions() {
+        val shareMessage = """
+            ${item.title}
+            Giá: ${item.price} VND
+            Mô tả: ${item.description}
+            Đánh giá: ${item.rating}/5
+        """.trimIndent()
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareMessage)
+        }
+
+        // Kiểm tra và thêm các ứng dụng chia sẻ cụ thể
+        val chooserIntent = Intent.createChooser(intent, "Chia sẻ qua")
+        val pm = packageManager
+        val activities = pm.queryIntentActivities(chooserIntent, PackageManager.MATCH_DEFAULT_ONLY)
+        
+        // Thêm Messenger và Zalo vào danh sách chia sẻ
+        val messengerIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareMessage)
+            setPackage("com.facebook.katana") // Package name của Messenger
+        }
+        
+        val zaloIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareMessage)
+            setPackage("com.zing.zalo") // Package name của Zalo
+        }
+
+        // Kiểm tra xem các ứng dụng có được cài đặt không
+        if (isAppInstalled("com.facebook.katana")) {
+            activities.add(pm.resolveActivity(messengerIntent, PackageManager.MATCH_DEFAULT_ONLY))
+        }
+        if (isAppInstalled("com.zing.zalo")) {
+            activities.add(pm.resolveActivity(zaloIntent, PackageManager.MATCH_DEFAULT_ONLY))
+        }
+
+        startActivity(chooserIntent)
+    }
+
+    private fun isAppInstalled(packageName: String): Boolean {
+        return try {
+            packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
 //    private fun updateFavoriteIcon() {
 //        // Nếu món hàng đã được yêu thích, hiển thị icon yêu thích đầy
 //        if (item.isFavorite) {
