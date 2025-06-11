@@ -17,6 +17,7 @@ import com.example.project1762.Helper.ManagmentCart
 import com.google.firebase.auth.FirebaseAuth
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.util.Log
 
 class DetailActivity : AppCompatActivity() {
     lateinit var binding:ActivityDetailBinding
@@ -170,13 +171,13 @@ class DetailActivity : AppCompatActivity() {
 
     fun toggleFavorite() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
+        Log.d("DetailActivity", "Toggle favorite - UserId: $userId")
+        Log.d("DetailActivity", "Toggle favorite - Item: ${item.title}")
 
         userId?.let { uid ->
             // managmentFavorite.toggleFavorite đã tự động cập nhật item.isFavorite bên trong
             managmentFavorite.toggleFavorite(item, uid)
-
-            // Cập nhật giao diện người dùng dựa trên trạng thái đã được cập nhật của item.isFavorite
-//            updateFavoriteIcon()
+            Log.d("DetailActivity", "After toggle - Item isFavorite: ${item.isFavorite}")
 
             // Hiển thị Toast dựa trên trạng thái đã được cập nhật của item.isFavorite
             if (item.isFavorite) {

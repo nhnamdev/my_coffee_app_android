@@ -1,7 +1,9 @@
 package com.example.mycoffeeapp.Activity
 
 import android.os.Bundle
-import android.widget.Toast // Thêm import Toast
+import android.util.Log
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mycoffeeapp.Adapter.FavoriteAdapter
@@ -35,6 +37,7 @@ class FavoriteActivity : AppCompatActivity() {
         initRecyclerView()
         setVariable()
     }
+
     override fun onResume() {
         super.onResume()
         // Đảm bảo userId đã được khởi tạo
@@ -45,20 +48,24 @@ class FavoriteActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         val favoriteItems = managmentFavorite.getFavoriteItems(userId)
+        Log.d("FavoriteActivity", "UserId: $userId")
+        Log.d("FavoriteActivity", "Favorite items size: ${favoriteItems.size}")
+        Log.d("FavoriteActivity", "Favorite items: $favoriteItems")
 
-        // Nếu danh sách rỗng, có thể hiển thị một thông báo hoặc giữ nguyên giao diện
+        // Nếu danh sách rỗng, hiển thị thông báo
         if (favoriteItems.isEmpty()) {
+            binding.emptyListMessage.visibility = View.VISIBLE
+            binding.recyclerViewFavorites.visibility = View.GONE
             Toast.makeText(this, "Danh sách yêu thích trống.", Toast.LENGTH_SHORT).show()
-            // Bạn có thể hiển thị một TextView "Danh sách trống" và ẩn RecyclerView ở đây
-            // binding.emptyListMessage.visibility = View.VISIBLE
-            // binding.recyclerViewFavorites.visibility = View.GONE
-        }
-
-        var adapter = FavoriteAdapter(favoriteItems, this, managmentFavorite, userId)
-
-        binding.recyclerViewFavorites.apply { // Sử dụng apply để gom các cài đặt RecyclerView
-            layoutManager = LinearLayoutManager(this@FavoriteActivity) // Sử dụng this@FavoriteActivity
-            adapter = adapter
+        } else {
+            binding.emptyListMessage.visibility = View.GONE
+            binding.recyclerViewFavorites.visibility = View.VISIBLE
+            
+            val adapter = FavoriteAdapter(favoriteItems, this, managmentFavorite, userId)
+            binding.recyclerViewFavorites.apply {
+                layoutManager = LinearLayoutManager(this@FavoriteActivity)
+                this.adapter = adapter
+            }
         }
     }
 
