@@ -135,8 +135,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.orderBtn.setOnClickListener {
-            // TODO: Chuyển đến màn hình đơn hàng
-            Toast.makeText(this, "Chức năng đơn hàng đang được phát triển", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, OrderActivity::class.java))
         }
 
         binding.profileBtn.setOnClickListener {

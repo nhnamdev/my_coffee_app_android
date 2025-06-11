@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mycoffeeapp.Adapter.CartAdapter
+import com.example.mycoffeeapp.Helper.ManagmentOrder
 import com.example.mycoffeeapp.databinding.ActivityCartBinding
 import com.example.project1762.Helper.ManagmentCart
 import com.uilover.project195.Helper.ChangeNumberItemsListener
@@ -15,15 +16,24 @@ import com.uilover.project195.Helper.ChangeNumberItemsListener
 class CartActivity : AppCompatActivity(){
     lateinit var binding: ActivityCartBinding
     lateinit var managmentCart: ManagmentCart
+    lateinit var managmentOrder: ManagmentOrder
     private var tax: Double = 0.0
 
     private fun setVariable() {
         binding.backBtn.setOnClickListener { finish() }
         
         binding.button3.setOnClickListener {
-            Toast.makeText(this, "Thanh toán thành công", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            val cartItems = managmentCart.getListCart()
+            if (cartItems.isNotEmpty()) {
+                val totalAmount = managmentCart.getTotalFee() + tax + 15 // 15 is delivery fee
+                managmentOrder.insertOrder(cartItems, totalAmount, tax, 15.0)
+                managmentCart.getListCart().clear() // Clear cart after successful payment
+                Toast.makeText(this, "Thanh toán thành công", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            } else {
+                Toast.makeText(this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -38,7 +48,6 @@ class CartActivity : AppCompatActivity(){
                     override fun onChanged() {
                         calculateCart()
                     }
-
                 }
             )
         }
@@ -51,11 +60,13 @@ class CartActivity : AppCompatActivity(){
         setContentView(binding.root)
 
         managmentCart = ManagmentCart(this)
+        managmentOrder = ManagmentOrder(this)
 
         calculateCart()
         setVariable()
         initCartList()
     }
+    
     private fun calculateCart(){
         val percentTax=0.02
         val delivery=15

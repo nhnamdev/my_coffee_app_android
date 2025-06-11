@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.example.mycoffeeapp.Helper.TinyDB
 import com.example.mycoffeeapp.R
 import com.example.mycoffeeapp.databinding.ActivityProfileBinding
 import com.google.android.material.textfield.TextInputEditText
@@ -226,7 +227,13 @@ class ProfileActivity : AppCompatActivity() {
             .setTitle("Đăng xuất")
             .setMessage("Bạn có chắc chắn muốn đăng xuất?")
             .setPositiveButton("Đăng xuất") { _, _ ->
+                // 1. Xoá danh sách đơn hàng
+                TinyDB(this).remove("OrderList")
+
+                // 2. Đăng xuất Firebase
                 auth.signOut()
+
+                // 3. Điều hướng về LoginActivity
                 startActivity(Intent(this, LoginActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 })

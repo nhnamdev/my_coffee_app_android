@@ -33,6 +33,7 @@ import android.util.Log;
 
 
 import com.example.mycoffeeapp.Domain.ItemsModel;
+import com.example.mycoffeeapp.Domain.OrderModel;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -540,6 +541,25 @@ public class TinyDB {
             objStrings.add(gson.toJson(player));
         }
         putListString(key, objStrings);
+    }
+    public void putOrderList(String key, ArrayList<OrderModel> orderList) {
+        checkForNullKey(key);
+        Gson gson = new Gson();
+        ArrayList<String> objStrings = new ArrayList<>();
+        for (OrderModel order : orderList) {
+            objStrings.add(gson.toJson(order));
+        }
+        putListString(key, objStrings);
+    }
+
+    public ArrayList<OrderModel> getOrderList(String key) {
+        ArrayList<String> objStrings = getListString(key);
+        ArrayList<OrderModel> objects = new ArrayList<>();
+        Gson gson = new Gson();
+        for (String json : objStrings) {
+            objects.add(gson.fromJson(json, OrderModel.class));
+        }
+        return objects;
     }
 
     /**

@@ -61,6 +61,10 @@
             android:name=".Activity.FavoriteActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".Activity.OrderActivity"
+            android:exported="false" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCOTQa115rgWPpoStYIAYZmyY3-U4p1Ej0"/>
