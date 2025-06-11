@@ -74,7 +74,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         map.addMarker(
             MarkerOptions()
                 .position(cafeLocation)
-                .title("Trà Sữa PU")
+                .title("Coffee")
         )
         // Zoom vào đúng vị trí quán luôn (hoặc tuỳ bạn chọn vị trí khác để focus)
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(cafeLocation, 15f))

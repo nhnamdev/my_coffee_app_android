@@ -16,6 +16,7 @@ import com.example.mycoffeeapp.Adapter.CategoryAdapter
 import com.example.mycoffeeapp.Adapter.PopularAdapter
 import com.example.mycoffeeapp.Domain.CategoryModel
 import com.example.mycoffeeapp.Domain.ItemsModel
+import com.example.mycoffeeapp.Helper.ManagmentFavorite
 import com.example.mycoffeeapp.ViewModel.MainViewModel
 import com.example.mycoffeeapp.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
@@ -26,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel = MainViewModel()
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var managmentFavorite: ManagmentFavorite
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,8 +129,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.favouriteBtn.setOnClickListener {
-            // TODO: Chuyển đến màn hình yêu thích
-            Toast.makeText(this, "Chức năng yêu thích đang được phát triển", Toast.LENGTH_SHORT).show()
+            // nếu vẫn không hiển thị dươc thì dùng cái này
+//          Toast.makeText(this, "Chức năng yeu thich đang được phát triển", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, com.example.mycoffeeapp.Activity.FavoriteActivity::class.java))
         }
 
         binding.orderBtn.setOnClickListener {
