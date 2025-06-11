@@ -60,7 +60,7 @@
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/banner"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="170dp"
                     android:scaleType="fitXY"
                     app:layout_constraintEnd_toEndOf="parent"
