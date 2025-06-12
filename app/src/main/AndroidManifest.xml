@@ -60,6 +60,9 @@
             android:name=".Activity.OrderActivity"
             android:exported="false" />
         <activity
+            android:name=".Activity.LoadingActivity"
+            android:exported="false"/>
+        <activity
             android:name=".Activity.ExploreActivity"
             android:exported="false" />
 

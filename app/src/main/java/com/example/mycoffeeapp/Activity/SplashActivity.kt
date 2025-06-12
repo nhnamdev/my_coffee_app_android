@@ -26,7 +26,7 @@ class SplashActivity : AppCompatActivity() {
 
         binding.startBtn.setOnClickListener {
             if (auth.currentUser != null) {
-                startActivity(Intent(this, MainActivity::class.java))
+                startActivity(Intent(this, LoadingActivity::class.java))
             } else {
                 startActivity(Intent(this, LoginActivity::class.java))
             }
