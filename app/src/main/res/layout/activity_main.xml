@@ -222,13 +222,14 @@
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/btn_1" />
+            app:srcCompat="@drawable/img_1"
+            app:tint="@color/white" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="Map"
+            android:text="About"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="10sp" />
