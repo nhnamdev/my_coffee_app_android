@@ -65,9 +65,27 @@
         <activity
             android:name=".Activity.ExploreActivity"
             android:exported="false" />
-        <activity android:name=".Activity.PaymentActivity" />
-        <activity android:name=".Activity.PaymentSuccessActivity" />
-        <activity android:name=".Activity.ActivityChecking" />
+        <activity
+            android:name=".Activity.PaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.PaymentSuccessActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ActivityChecking"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.AdminDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ManageUsersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ManageItemsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.AddItemActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
