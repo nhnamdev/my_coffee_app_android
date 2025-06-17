@@ -80,11 +80,14 @@ class DetailActivity : AppCompatActivity() {
             Glide.with(this@DetailActivity)
                 .load(item.picUrl[0])
                 .into(binding.picMain)
-
+////
             titleTxt.text = item.title
             descriptionTxt.text = item.description
             priceTxt.text = item.price.toString() + " VND"
             ratingtxt.text = item.rating.toString()
+
+            // Kiểm tra trạng thái yêu thích và cập nhật icon
+            updateFavoriteIcon()
 
             addToCartBtn.setOnClickListener {
                 item.numberInCart = Integer.valueOf(
@@ -118,9 +121,45 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupClickListeners() {
-        binding.favBtn.setOnClickListener {
-            toggleFavorite()
+    private fun updateFavoriteIcon() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            // Kiểm tra trạng thái yêu thích từ Firestore
+            firestore.collection("favorites")
+                .document("${userId}_${item.title}")
+                .get()
+                .addOnSuccessListener { document ->
+                    item.isFavorite = document.exists()
+                    binding.favBtn.setImageResource(
+                        if (item.isFavorite) R.drawable.ic_favorite_filled
+                        else R.drawable.ic_favorite_outline
+                    )
+                }
+        }
+    }
+
+    private fun toggleFavorite() {
+        val userId = auth.currentUser?.uid
+        Log.d("DetailActivity", "Toggle favorite - UserId: $userId")
+        Log.d("DetailActivity", "Toggle favorite - Item: ${item.title}")
+
+        userId?.let { uid ->
+            managmentFavorite.toggleFavorite(item, uid)
+            Log.d("DetailActivity", "After toggle - Item isFavorite: ${item.isFavorite}")
+
+            // Cập nhật icon ngay sau khi thay đổi trạng thái
+            binding.favBtn.setImageResource(
+                if (item.isFavorite) R.drawable.ic_favorite_filled
+                else R.drawable.ic_favorite_outline
+            )
+
+            if (item.isFavorite) {
+                Toast.makeText(this, "${item.title} đã được thêm vào danh sách yêu thích", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "${item.title} đã được xóa khỏi danh sách yêu thích", Toast.LENGTH_SHORT).show()
+            }
+        } ?: run {
+            Toast.makeText(this, "Vui lòng đăng nhập để sử dụng tính năng yêu thích", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -137,25 +176,6 @@ class DetailActivity : AppCompatActivity() {
             putExtra(Intent.EXTRA_TEXT, shareMessage)
         }
         startActivity(Intent.createChooser(intent, "Chia sẻ qua"))
-    }
-
-    private fun toggleFavorite() {
-        val userId = auth.currentUser?.uid
-        Log.d("DetailActivity", "Toggle favorite - UserId: $userId")
-        Log.d("DetailActivity", "Toggle favorite - Item: ${item.title}")
-
-        userId?.let { uid ->
-            managmentFavorite.toggleFavorite(item, uid)
-            Log.d("DetailActivity", "After toggle - Item isFavorite: ${item.isFavorite}")
-
-            if (item.isFavorite) {
-                Toast.makeText(this, "${item.title} đã được thêm vào danh sách yêu thích", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "${item.title} đã được xóa khỏi danh sách yêu thích", Toast.LENGTH_SHORT).show()
-            }
-        } ?: run {
-            Toast.makeText(this, "Vui lòng đăng nhập để sử dụng tính năng yêu thích", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun showRatingDialog() {
@@ -280,5 +300,11 @@ class DetailActivity : AppCompatActivity() {
             .addOnFailureListener { e ->
                 Log.e("DetailActivity", "Error updating product rating: ${e.message}")
             }
+    }
+
+    private fun setupClickListeners() {
+        binding.favBtn.setOnClickListener {
+            toggleFavorite()
+        }
     }
 }
