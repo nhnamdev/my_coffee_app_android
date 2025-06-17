@@ -80,7 +80,7 @@ class DetailActivity : AppCompatActivity() {
             Glide.with(this@DetailActivity)
                 .load(item.picUrl[0])
                 .into(binding.picMain)
-//
+////
             titleTxt.text = item.title
             descriptionTxt.text = item.description
             priceTxt.text = item.price.toString() + " VND"
