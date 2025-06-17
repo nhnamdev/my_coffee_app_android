@@ -72,13 +72,13 @@ class LoginActivity : AppCompatActivity() {
 
             // Configure Google Sign In
             val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("136962826431-ig6rdqv83uvecife3ju0nl00hb1sfoeu.apps.googleusercontent.com") // Thay thế bằng Web Client ID từ Firebase Console
+                .requestIdToken("136962826431-ig6rdqv83uvecife3ju0nl00hb1sfoeu.apps.googleusercontent.com")
                 .requestEmail()
                 .build()
 
             googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-            // Check if default account exists
+            // Check if default admin account exists
             checkDefaultAccount()
 
             // Initialize captcha
@@ -101,8 +101,7 @@ class LoginActivity : AppCompatActivity() {
                         .addOnCompleteListener(this) { task ->
                             binding.loginBtn.isEnabled = true
                             if (task.isSuccessful) {
-                                startActivity(Intent(this, SplashActivity::class.java))
-                                finish()
+                                checkAdminAndRedirect()
                             } else {
                                 val errorMessage = task.exception?.message ?: "Login failed"
                                 Log.e("LoginActivity", "Login error: $errorMessage")
@@ -158,23 +157,20 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    // Kiểm tra xem người dùng đã tồn tại trong Firestore chưa
                     firestore.collection("users")
                         .document(user?.uid ?: "")
                         .get()
                         .addOnSuccessListener { document ->
                             if (document.exists()) {
-                                // Nếu người dùng đã tồn tại, chuyển đến màn hình chính
-                                startActivity(Intent(this, SplashActivity::class.java))
-                                finish()
+                                checkAdminAndRedirect()
                             } else {
-                                // Nếu người dùng chưa tồn tại, tạo mới thông tin
                                 val userInfo = hashMapOf(
                                     "username" to (user?.displayName ?: ""),
                                     "email" to (user?.email ?: ""),
                                     "phone" to "",
                                     "address" to "",
                                     "photoUrl" to (user?.photoUrl?.toString() ?: ""),
+                                    "isAdmin" to false,
                                     "createdAt" to System.currentTimeMillis()
                                 )
                                 firestore.collection("users")
@@ -182,8 +178,7 @@ class LoginActivity : AppCompatActivity() {
                                     .set(userInfo)
                                     .addOnSuccessListener {
                                         Log.d("LoginActivity", "Đã tạo thông tin người dùng mới thành công")
-                                        startActivity(Intent(this, SplashActivity::class.java))
-                                        finish()
+                                        checkAdminAndRedirect()
                                     }
                                     .addOnFailureListener { e ->
                                         Log.e("LoginActivity", "Lỗi khi tạo thông tin người dùng: ${e.message}")
@@ -202,44 +197,67 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
+    private fun checkAdminAndRedirect() {
+        val user = auth.currentUser
+        if (user != null) {
+            firestore.collection("users")
+                .document(user.uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists() && document.getBoolean("isAdmin") == true) {
+                        startActivity(Intent(this, AdminDashboardActivity::class.java))
+                    } else {
+                        startActivity(Intent(this, SplashActivity::class.java))
+                    }
+                    finish()
+                }
+                .addOnFailureListener { e ->
+                    Log.e("LoginActivity", "Lỗi khi kiểm tra quyền admin: ${e.message}")
+                    Toast.makeText(this, "Lỗi khi kiểm tra quyền admin: ${e.message}", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, SplashActivity::class.java))
+                    finish()
+                }
+        }
+    }
+
     private fun checkDefaultAccount() {
         try {
-            val defaultEmail = "namnguyen@gmail.com"
-            val defaultPassword = "12345678"
+            val adminEmail = "admin@mycoffeeapp.com"
+            val adminPassword = "Admin1234"
 
-            auth.signInWithEmailAndPassword(defaultEmail, defaultPassword)
+            auth.signInWithEmailAndPassword(adminEmail, adminPassword)
                 .addOnCompleteListener { task ->
                     if (!task.isSuccessful) {
-                        // Create default account if it doesn't exist
-                        auth.createUserWithEmailAndPassword(defaultEmail, defaultPassword)
+                        auth.createUserWithEmailAndPassword(adminEmail, adminPassword)
                             .addOnCompleteListener { createTask ->
                                 if (createTask.isSuccessful) {
-                                    // Save user info to Firestore
                                     val user = hashMapOf(
-                                        "username" to "namnguyen",
-                                        "email" to defaultEmail,
+                                        "username" to "Admin",
+                                        "email" to adminEmail,
                                         "phone" to "",
-                                        "address" to ""
+                                        "address" to "",
+                                        "isAdmin" to true,
+                                        "createdAt" to System.currentTimeMillis()
                                     )
                                     firestore.collection("users")
                                         .document(auth.currentUser?.uid ?: "")
                                         .set(user)
                                         .addOnSuccessListener {
-                                            Log.d("LoginActivity", "TK defaut đc tạo thanh công")
-                                            Toast.makeText(this, "TK defaut đc tạo", Toast.LENGTH_SHORT).show()
+                                            Log.d("LoginActivity", "Tài khoản admin mặc định được tạo thành công")
+                                            Toast.makeText(this, "Tài khoản admin mặc định được tạo", Toast.LENGTH_SHORT).show()
                                         }
                                         .addOnFailureListener { e ->
-                                            Log.e("LoginActivity", "Lỗi khi tạo tk mặc định: ${e.message}")
-                                            Toast.makeText(this, "Lỗi khi tạo tk mặc định: ${e.message}", Toast.LENGTH_SHORT).show()
+                                            Log.e("LoginActivity", "Lỗi khi tạo tài khoản admin: ${e.message}")
+                                            Toast.makeText(this, "Lỗi khi tạo tài khoản admin: ${e.message}", Toast.LENGTH_SHORT).show()
                                         }
                                 } else {
-                                    Log.e("LoginActivity", "Lỗi khi tạo tk mặc định: ${createTask.exception?.message}")
+                                    Log.e("LoginActivity", "Lỗi khi tạo tài khoản admin: ${createTask.exception?.message}")
                                 }
                             }
                     }
                 }
         } catch (e: Exception) {
-            Log.e("LoginActivity", "Lỗi khi check tk mặc định: ${e.message}")
+            Log.e("LoginActivity", "Lỗi khi kiểm tra tài khoản admin: ${e.message}")
         }
     }
-} 
+}
