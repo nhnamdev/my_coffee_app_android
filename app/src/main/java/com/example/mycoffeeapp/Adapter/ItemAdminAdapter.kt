@@ -9,29 +9,33 @@ import com.example.mycoffeeapp.databinding.ViewholderItemAdminBinding
 
 class ItemAdminAdapter(
     private val items: List<ItemsModel>,
-    private val onActionClick: (ItemsModel, String) -> Unit
-) : RecyclerView.Adapter<ItemAdminAdapter.ItemViewHolder>() {
+    private val onItemAction: (ItemsModel, String) -> Unit
+) : RecyclerView.Adapter<ItemAdminAdapter.ViewHolder>() {
 
-    inner class ItemViewHolder(val binding: ViewholderItemAdminBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: ItemsModel) {
-            binding.titleTxt.text = item.title
-            binding.descriptionTxt.text = item.description
-            binding.priceTxt.text = "${item.price} VND"
-            Glide.with(binding.root.context)
-                .load(item.picUrl.firstOrNull())
-                .into(binding.picItem)
-            binding.btnEdit.setOnClickListener { onActionClick(item, "edit") }
-            binding.btnDelete.setOnClickListener { onActionClick(item, "delete") }
+    class ViewHolder(val binding: ViewholderItemAdminBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ViewholderItemAdminBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return ViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = items[position]
+        with(holder.binding) {
+            titleTxt.text = item.title
+            descriptionTxt.text = item.description
+            priceTxt.text = "${item.price} VND"
+            if (item.picUrl.isNotEmpty()) {
+                Glide.with(holder.itemView.context)
+                    .load(item.picUrl[0])
+                    .into(picItem)
+            }
+            btnEdit.setOnClickListener { onItemAction(item, "edit") }
+            btnDelete.setOnClickListener { onItemAction(item, "delete") }
         }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val binding = ViewholderItemAdminBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ItemViewHolder(binding)
-    }
-
-    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        holder.bind(items[position])
     }
 
     override fun getItemCount(): Int = items.size

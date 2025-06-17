@@ -1,17 +1,18 @@
 package com.example.mycoffeeapp.Activity
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mycoffeeapp.Adapter.ItemAdminAdapter
 import com.example.mycoffeeapp.Domain.ItemsModel
 import com.example.mycoffeeapp.databinding.ActivityManageItemsBinding
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.*
 
 class ManageItemsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageItemsBinding
-    private lateinit var firestore: FirebaseFirestore
+    private lateinit var database: DatabaseReference
     private val items = mutableListOf<ItemsModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +20,7 @@ class ManageItemsActivity : AppCompatActivity() {
         binding = ActivityManageItemsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firestore = FirebaseFirestore.getInstance()
+        database = FirebaseDatabase.getInstance("https://mycoffeeapp-a6df3-default-rtdb.firebaseio.com/").getReference("Items")
         initItemList()
 
         binding.backBtn.setOnClickListener {
@@ -27,7 +28,6 @@ class ManageItemsActivity : AppCompatActivity() {
         }
 
         binding.btnAddItem.setOnClickListener {
-            // Simple implementation: Add a new item with default values
             val newItem = ItemsModel(
                 title = binding.editItemTitle.text.toString(),
                 description = binding.editItemDescription.text.toString(),
@@ -35,7 +35,8 @@ class ManageItemsActivity : AppCompatActivity() {
                 price = binding.editItemPrice.text.toString().toDoubleOrNull() ?: 0.0,
                 rating = 0.0,
                 numberInCart = 0,
-                extra = ""
+                extra = "",
+                categoryId = ""
             )
             addItem(newItem)
         }
@@ -43,23 +44,15 @@ class ManageItemsActivity : AppCompatActivity() {
 
     private fun initItemList() {
         binding.progressBar.visibility = android.view.View.VISIBLE
-        firestore.collection("items")
-            .get()
-            .addOnSuccessListener { result ->
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 items.clear()
-                for (document in result) {
-                    val item = ItemsModel(
-                        title = document.getString("title") ?: "",
-                        description = document.getString("description") ?: "",
-                        picUrl = document.get("picUrl") as? ArrayList<String> ?: arrayListOf(),
-                        price = document.getDouble("price") ?: 0.0,
-                        rating = document.getDouble("rating") ?: 0.0,
-                        numberInCart = document.getLong("numberInCart")?.toInt() ?: 0,
-                        extra = document.getString("extra") ?: ""
-                    )
-                    items.add(item)
+                for (dataSnapshot in snapshot.children) {
+                    val item = dataSnapshot.getValue(ItemsModel::class.java)
+                    item?.let { items.add(it) }
                 }
-                binding.recyclerViewItems.layoutManager = LinearLayoutManager(this)
+                Log.d("ManageItemsActivity", "Số lượng items: ${items.size}")
+                binding.recyclerViewItems.layoutManager = LinearLayoutManager(this@ManageItemsActivity)
                 binding.recyclerViewItems.adapter = ItemAdminAdapter(items) { item, action ->
                     when (action) {
                         "delete" -> deleteItem(item)
@@ -67,19 +60,23 @@ class ManageItemsActivity : AppCompatActivity() {
                     }
                 }
                 binding.progressBar.visibility = android.view.View.GONE
+                if (items.isEmpty()) {
+                    Toast.makeText(this@ManageItemsActivity, "Không có sản phẩm nào trong danh sách.", Toast.LENGTH_SHORT).show()
+                }
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Lỗi khi tải danh sách món: ${e.message}", Toast.LENGTH_SHORT).show()
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ManageItemsActivity", "Lỗi khi tải danh sách món: ${error.message}")
+                Toast.makeText(this@ManageItemsActivity, "Lỗi khi tải danh sách món: ${error.message}", Toast.LENGTH_SHORT).show()
                 binding.progressBar.visibility = android.view.View.GONE
             }
+        })
     }
 
     private fun addItem(item: ItemsModel) {
-        firestore.collection("items")
-            .add(item)
+        database.child(item.title).setValue(item)
             .addOnSuccessListener {
                 Toast.makeText(this, "Đã thêm ${item.title}", Toast.LENGTH_SHORT).show()
-                initItemList()
                 clearInputFields()
             }
             .addOnFailureListener { e ->
@@ -88,15 +85,9 @@ class ManageItemsActivity : AppCompatActivity() {
     }
 
     private fun deleteItem(item: ItemsModel) {
-        firestore.collection("items")
-            .whereEqualTo("title", item.title)
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    firestore.collection("items").document(document.id).delete()
-                }
+        database.child(item.title).removeValue()
+            .addOnSuccessListener {
                 Toast.makeText(this, "Đã xóa ${item.title}", Toast.LENGTH_SHORT).show()
-                initItemList()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Lỗi khi xóa món: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -104,7 +95,6 @@ class ManageItemsActivity : AppCompatActivity() {
     }
 
     private fun editItem(item: ItemsModel) {
-        // Populate input fields for editing
         binding.editItemTitle.setText(item.title)
         binding.editItemDescription.setText(item.description)
         binding.editItemPrice.setText(item.price.toString())
@@ -116,30 +106,22 @@ class ManageItemsActivity : AppCompatActivity() {
                 description = binding.editItemDescription.text.toString(),
                 price = binding.editItemPrice.text.toString().toDoubleOrNull() ?: item.price
             )
-            firestore.collection("items")
-                .whereEqualTo("title", item.title)
-                .get()
-                .addOnSuccessListener { result ->
-                    for (document in result) {
-                        firestore.collection("items").document(document.id)
-                            .set(updatedItem)
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "Đã cập nhật ${item.title}", Toast.LENGTH_SHORT).show()
-                                initItemList()
-                                clearInputFields()
-                                binding.btnAddItem.text = "Add Item"
-                                binding.btnAddItem.setOnClickListener {
-                                    addItem(ItemsModel(
-                                        title = binding.editItemTitle.text.toString(),
-                                        description = binding.editItemDescription.text.toString(),
-                                        picUrl = arrayListOf("default_image_url"),
-                                        price = binding.editItemPrice.text.toString().toDoubleOrNull() ?: 0.0,
-                                        rating = 0.0,
-                                        numberInCart = 0,
-                                        extra = ""
-                                    ))
-                                }
-                            }
+            database.child(item.title).setValue(updatedItem)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Đã cập nhật ${item.title}", Toast.LENGTH_SHORT).show()
+                    clearInputFields()
+                    binding.btnAddItem.text = "Add Item"
+                    binding.btnAddItem.setOnClickListener {
+                        addItem(ItemsModel(
+                            title = binding.editItemTitle.text.toString(),
+                            description = binding.editItemDescription.text.toString(),
+                            picUrl = arrayListOf("default_image_url"),
+                            price = binding.editItemPrice.text.toString().toDoubleOrNull() ?: 0.0,
+                            rating = 0.0,
+                            numberInCart = 0,
+                            extra = "",
+                            categoryId = ""
+                        ))
                     }
                 }
                 .addOnFailureListener { e ->
