@@ -65,6 +65,9 @@
         <activity
             android:name=".Activity.ExploreActivity"
             android:exported="false" />
+        <activity android:name=".Activity.PaymentActivity" />
+        <activity android:name=".Activity.PaymentSuccessActivity" />
+        <activity android:name=".Activity.ActivityChecking" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

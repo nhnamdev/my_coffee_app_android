@@ -28,9 +28,10 @@ class CartActivity : AppCompatActivity(){
                 val totalAmount = managmentCart.getTotalFee() + tax + 15 // 15 is delivery fee
                 managmentOrder.insertOrder(cartItems, totalAmount, tax, 15.0)
                 managmentCart.getListCart().clear() // Clear cart after successful payment
-                Toast.makeText(this, "Thanh toán thành công", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                // Chuyển đến màn hình thanh toán
+                val intent = Intent(this, PaymentActivity::class.java)
+                intent.putExtra("total_amount", totalAmount)
+                startActivity(intent)
             } else {
                 Toast.makeText(this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show()
             }
