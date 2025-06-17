@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:layout_marginVertical="8dp"
-    android:background="@drawable/white_bg">
+    android:background="@drawable/cream_all_corner">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/picItem"
@@ -14,7 +14,7 @@
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/CircleImageView"/>
+        app:shapeAppearanceOverlay="@style/CircleImageView" />
 
     <TextView
         android:id="@+id/titleTxt"
@@ -24,9 +24,9 @@
         android:textColor="@color/darkBrown"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:layout_marginStart="16dp"
         app:layout_constraintStart_toEndOf="@id/picItem"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="16dp"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/descriptionTxt"
@@ -35,10 +35,10 @@
         android:text="Description"
         android:textColor="@color/darkBrown"
         android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@id/picItem"
-        app:layout_constraintTop_toBottomOf="@id/titleTxt"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@id/picItem"
+        app:layout_constraintTop_toBottomOf="@id/titleTxt" />
 
     <TextView
         android:id="@+id/priceTxt"
@@ -47,30 +47,40 @@
         android:text="Price"
         android:textColor="@color/darkBrown"
         android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@id/picItem"
-        app:layout_constraintTop_toBottomOf="@id/descriptionTxt"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@id/picItem"
+        app:layout_constraintTop_toBottomOf="@id/descriptionTxt" />
 
-    <Button
-        android:id="@+id/btnEdit"
-        android:layout_width="wrap_content"
+    <!-- Layer chứa hai nút ở dưới -->
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Edit"
-        android:background="@drawable/outline_button_bg"
-        android:textColor="@color/darkBrown"
-        app:layout_constraintEnd_toStartOf="@id/btnDelete"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginEnd="8dp"/>
-
-    <Button
-        android:id="@+id/btnDelete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete"
-        android:backgroundTint="#FF0000"
-        android:textColor="@color/white"
+        android:layout_marginTop="24dp"
+        android:gravity="end"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/picItem">
+
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="159dp"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:backgroundTint="@color/cream"
+            android:textColor="@color/black"
+        />
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Delete"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/quantum_brown"
+        />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
