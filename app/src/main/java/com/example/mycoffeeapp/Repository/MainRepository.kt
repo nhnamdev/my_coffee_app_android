@@ -108,13 +108,17 @@ class MainRepository {
                 val list = mutableListOf<Items>()
                 for (childSnapshot in snapshot.children) {
                     val item = childSnapshot.getValue(Items::class.java)
-                    item?.let { list.add(it) }
+                    item?.let { 
+                        list.add(it)
+                        android.util.Log.d("MainRepository", "Found item: ${it.title} with categoryId: ${it.categoryId}")
+                    }
                 }
+                android.util.Log.d("MainRepository", "Total items found for category $categoryId: ${list.size}")
                 itemsLiveData.value = list
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
+                android.util.Log.e("MainRepository", "Error loading items for category $categoryId: ${error.message}")
             }
         })
         return itemsLiveData

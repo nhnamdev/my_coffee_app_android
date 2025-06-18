@@ -88,7 +88,27 @@ class MainActivity : AppCompatActivity() {
                 LinearLayoutManager.HORIZONTAL,
                 false
             )
-            binding.recyclerViewCat.adapter = CategoryAdapter(categoryModelList)
+            binding.recyclerViewCat.adapter = CategoryAdapter(categoryModelList) { selectedCategory ->
+                // Khi chọn danh mục, lọc sản phẩm theo danh mục đó
+                android.util.Log.d("MainActivity", "Selected category: ${selectedCategory.title} with id: ${selectedCategory.id}")
+                viewModel.loadItemCategory(selectedCategory.id.toString()).observe(this@MainActivity) { itemsList ->
+                    android.util.Log.d("MainActivity", "Received ${itemsList.size} items for category ${selectedCategory.id}")
+                    val itemsModelList = itemsList.map { item ->
+                        ItemsModel(
+                            title = item.title,
+                            description = item.description,
+                            picUrl = ArrayList(item.picUrl),
+                            price = item.price,
+                            rating = item.rating,
+                            extra = item.extra,
+                            categoryId = item.categoryId
+                        )
+                    }.toMutableList()
+
+                    binding.recyclerViewPopular.layoutManager = GridLayoutManager(this, 2)
+                    binding.recyclerViewPopular.adapter = PopularAdapter(itemsModelList)
+                }
+            }
             binding.progressBarCategory.visibility = View.GONE
         }
         viewModel.loadCategory()
