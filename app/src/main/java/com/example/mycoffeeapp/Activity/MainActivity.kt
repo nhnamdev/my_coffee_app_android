@@ -20,6 +20,8 @@ import com.example.mycoffeeapp.ViewModel.MainViewModel
 import com.example.mycoffeeapp.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
 import java.util.*
+import android.text.Editable
+import android.view.inputmethod.EditorInfo
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         initCategory()
         initPopular()
         setupClickListeners()
+        setupSearch()
     }
 
     private fun checkFirstOpenOfDay() {
@@ -134,6 +137,32 @@ class MainActivity : AppCompatActivity() {
 
         binding.profileBtn.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
+        }
+    }
+
+    private fun setupSearch() {
+        // Xử lý sự kiện nhấn Enter trên EditText
+        binding.editTextText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch()
+                true
+            } else {
+                false
+            }
+        }
+
+        // Xử lý click vào icon tìm kiếm
+        binding.searchIcon.setOnClickListener {
+            performSearch()
+        }
+    }
+
+    private fun performSearch() {
+        val query = binding.editTextText.text.toString().trim()
+        if (query.isNotEmpty()) {
+            val intent = Intent(this, SearchResultsActivity::class.java)
+            intent.putExtra("searchQuery", query)
+            startActivity(intent)
         }
     }
 }
