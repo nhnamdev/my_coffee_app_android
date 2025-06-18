@@ -83,6 +83,9 @@ class MainActivity : AppCompatActivity() {
                 )
             }.toMutableList()
 
+            // Thêm danh mục Popular vào đầu danh sách
+            categoryModelList.add(0, CategoryModel(title = "Popular", id = -1))
+
             binding.recyclerViewCat.layoutManager = LinearLayoutManager(
                 this@MainActivity,
                 LinearLayoutManager.HORIZONTAL,
@@ -91,22 +94,46 @@ class MainActivity : AppCompatActivity() {
             binding.recyclerViewCat.adapter = CategoryAdapter(categoryModelList) { selectedCategory ->
                 // Khi chọn danh mục, lọc sản phẩm theo danh mục đó
                 android.util.Log.d("MainActivity", "Selected category: ${selectedCategory.title} with id: ${selectedCategory.id}")
-                viewModel.loadItemCategory(selectedCategory.id.toString()).observe(this@MainActivity) { itemsList ->
-                    android.util.Log.d("MainActivity", "Received ${itemsList.size} items for category ${selectedCategory.id}")
-                    val itemsModelList = itemsList.map { item ->
-                        ItemsModel(
-                            title = item.title,
-                            description = item.description,
-                            picUrl = ArrayList(item.picUrl),
-                            price = item.price,
-                            rating = item.rating,
-                            extra = item.extra,
-                            categoryId = item.categoryId
-                        )
-                    }.toMutableList()
+                
+                // Cập nhật tiêu đề danh mục
+                binding.categoryTitleTxt.text = selectedCategory.title
+                
+                if (selectedCategory.title == "Popular") {
+                    // Nếu chọn Popular, hiển thị danh sách sản phẩm phổ biến
+                    viewModel.loadPopular().observe(this@MainActivity) { popularList ->
+                        val itemsModelList = popularList.map { popular ->
+                            ItemsModel(
+                                title = popular.title,
+                                description = popular.description,
+                                picUrl = ArrayList(popular.picUrl),
+                                price = popular.price,
+                                rating = popular.rating,
+                                extra = popular.extra
+                            )
+                        }.toMutableList()
 
-                    binding.recyclerViewPopular.layoutManager = GridLayoutManager(this, 2)
-                    binding.recyclerViewPopular.adapter = PopularAdapter(itemsModelList)
+                        binding.recyclerViewPopular.layoutManager = GridLayoutManager(this, 2)
+                        binding.recyclerViewPopular.adapter = PopularAdapter(itemsModelList)
+                    }
+                } else {
+                    // Xử lý các danh mục khác như bình thường
+                    viewModel.loadItemCategory(selectedCategory.id.toString()).observe(this@MainActivity) { itemsList ->
+                        android.util.Log.d("MainActivity", "Received ${itemsList.size} items for category ${selectedCategory.id}")
+                        val itemsModelList = itemsList.map { item ->
+                            ItemsModel(
+                                title = item.title,
+                                description = item.description,
+                                picUrl = ArrayList(item.picUrl),
+                                price = item.price,
+                                rating = item.rating,
+                                extra = item.extra,
+                                categoryId = item.categoryId
+                            )
+                        }.toMutableList()
+
+                        binding.recyclerViewPopular.layoutManager = GridLayoutManager(this, 2)
+                        binding.recyclerViewPopular.adapter = PopularAdapter(itemsModelList)
+                    }
                 }
             }
             binding.progressBarCategory.visibility = View.GONE
