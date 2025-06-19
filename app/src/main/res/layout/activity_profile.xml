@@ -134,9 +134,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:background="@drawable/button_bg"
                 android:text="Lưu thay đổi"
-                android:textColor="@color/white"
+                android:backgroundTint="@color/cream"
+                android:textColor="@color/black"
                 android:textSize="16sp" />
 
             <Button
@@ -144,7 +144,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/outline_button_bg"
+                android:backgroundTint="@color/cream"
                 android:text="Đổi mật khẩu"
                 android:textColor="@color/darkBrown"
                 android:textSize="16sp" />
@@ -156,7 +156,7 @@
                 android:layout_marginTop="16dp"
                 android:text="Đăng xuất"
                 android:textColor="@android:color/white"
-                android:backgroundTint="#FF0000" />
+                android:backgroundTint="@color/quantum_brown" />
 
             <Button
                 android:id="@+id/feedbackButton"
@@ -165,7 +165,7 @@
                 android:layout_marginTop="8dp"
                 android:text="Gửi phản hồi"
                 android:textColor="@android:color/white"
-                android:backgroundTint="#4CAF50" />
+                android:backgroundTint="@color/quantum_brown" />
 
         </LinearLayout>
     </ScrollView>
